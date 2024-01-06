@@ -8,7 +8,7 @@ RUN python3 -m pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY . .
 
-CMD ["panel", "serve", "/code/app.py", "--address", "0.0.0.0", "--port", "7860",  "--allow-websocket-origin", "*"]
+CMD ["panel", "serve", "/code/app.py", "--address", "0.0.0.0", "--port", "7860",  "--allow-websocket-origin", "*", "--num-procs", "2", "--index", "app"]
 
 RUN mkdir /.cache
 RUN chmod 777 /.cache
