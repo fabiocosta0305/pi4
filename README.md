@@ -1,6 +1,6 @@
 ---
-title: Panel Template
-emoji: 📈
+title: Async Tasks
+emoji: ⚙️
 colorFrom: gray
 colorTo: green
 sdk: docker
@@ -8,4 +8,4 @@ pinned: false
 license: mit
 ---
 
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+For info check out [awesome-panel.org](https://awesome-panel.org).
