@@ -125,7 +125,10 @@ class AsyncComponent(pn.viewable.Viewer):
         time.sleep(np.random.randint(1, 2))
         return 5
 
-if __name__.startswith("bokeh"):
-    pn.extension(template="fast")
-    pn.pane.Markdown(__doc__).servable()
-    AsyncComponent().servable()  # pylint: disable=no-value-for-parameter
+if pn.state.served:
+    pn.extension()
+    
+    component = AsyncComponent()
+    pn.template.FastListTemplate(
+        site="Awesome Panel", title="Async Tasks", main=[component], main_layout=None, main_max_width="400px"
+    ).servable()
