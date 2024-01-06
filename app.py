@@ -1,147 +1,131 @@
-import io
-import random
-from typing import List, Tuple
+import time
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 
-import aiohttp
+import numpy as np
 import panel as pn
-from PIL import Image
-from transformers import CLIPModel, CLIPProcessor
+import param
+from asyncio import wrap_future
 
-pn.extension(design="bootstrap", sizing_mode="stretch_width")
+class ProgressExtMod(pn.viewable.Viewer):
+    """A custom component for easy progress reporting"""
 
-ICON_URLS = {
-    "brand-github": "https://github.com/holoviz/panel",
-    "brand-twitter": "https://twitter.com/Panel_Org",
-    "brand-linkedin": "https://www.linkedin.com/company/panel-org",
-    "message-circle": "https://discourse.holoviz.org/",
-    "brand-discord": "https://discord.gg/AXRHnJU6sP",
-}
+    completed = param.Integer(default=0)
+    bar_color = param.String(default="info")
+    num_tasks = param.Integer(default=100, bounds=(1, None))
 
+    # @param.depends('completed', 'num_tasks')
+    @property
+    def value(self) -> int:
+        """Returns the progress value
 
-async def random_url(_):
-    pet = random.choice(["cat", "dog"])
-    api_url = f"https://api.the{pet}api.com/v1/images/search"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(api_url) as resp:
-            return (await resp.json())[0]["url"]
+        Returns:
+            int: The progress value
+        """
+        return int(100 * (self.completed / self.num_tasks))
 
+    def reset(self):
+        """Resets the value and message"""
+        # Please note the order matters as the Widgets updates two times. One for each change
+        self.completed = 0
 
-@pn.cache
-def load_processor_model(
-    processor_name: str, model_name: str
-) -> Tuple[CLIPProcessor, CLIPModel]:
-    processor = CLIPProcessor.from_pretrained(processor_name)
-    model = CLIPModel.from_pretrained(model_name)
-    return processor, model
+    def __panel__(self):
+        return self.view
 
-
-async def open_image_url(image_url: str) -> Image:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(image_url) as resp:
-            return Image.open(io.BytesIO(await resp.read()))
-
-
-def get_similarity_scores(class_items: List[str], image: Image) -> List[float]:
-    processor, model = load_processor_model(
-        "openai/clip-vit-base-patch32", "openai/clip-vit-base-patch32"
-    )
-    inputs = processor(
-        text=class_items,
-        images=[image],
-        return_tensors="pt",  # pytorch tensors
-    )
-    outputs = model(**inputs)
-    logits_per_image = outputs.logits_per_image
-    class_likelihoods = logits_per_image.softmax(dim=1).detach().numpy()
-    return class_likelihoods[0]
-
-
-async def process_inputs(class_names: List[str], image_url: str):
-    """
-    High level function that takes in the user inputs and returns the
-    classification results as panel objects.
-    """
-    try:
-        main.disabled = True
-        if not image_url:
-            yield "##### ⚠️ Provide an image URL"
-            return
-    
-        yield "##### ⚙ Fetching image and running model..."
-        try:
-            pil_img = await open_image_url(image_url)
-            img = pn.pane.Image(pil_img, height=400, align="center")
-        except Exception as e:
-            yield f"##### 😔 Something went wrong, please try a different URL!"
-            return
-    
-        class_items = class_names.split(",")
-        class_likelihoods = get_similarity_scores(class_items, pil_img)
-    
-        # build the results column
-        results = pn.Column("##### 🎉 Here are the results!", img)
-    
-        for class_item, class_likelihood in zip(class_items, class_likelihoods):
-            row_label = pn.widgets.StaticText(
-                name=class_item.strip(), value=f"{class_likelihood:.2%}", align="center"
+    @param.depends("completed", "bar_color")
+    def view(self):
+        """View the widget
+        Returns:
+            pn.viewable.Viewable: Add this to your app to see the progress reported
+        """
+        if self.value:
+            return pn.widgets.Progress(
+                active=True, value=self.value, align="center", sizing_mode="stretch_width"
             )
-            row_bar = pn.indicators.Progress(
-                value=int(class_likelihood * 100),
-                sizing_mode="stretch_width",
-                bar_color="secondary",
-                margin=(0, 10),
-                design=pn.theme.Material,
-            )
-            results.append(pn.Column(row_label, row_bar))
-        yield results
-    finally:
-        main.disabled = False
+        return None
+
+    @contextmanager
+    def increment(self):
+        """Increments the value
+        
+        Can be used as context manager or decorator
+        
+        Yields:
+            None: Nothing is yielded
+        """
+        self.completed += 1
+        yield
+        if self.completed == self.num_tasks:
+            self.reset()
+
+executor = ThreadPoolExecutor(max_workers=2)  # pylint: disable=consider-using-with
+progress = ProgressExtMod()
 
 
-# create widgets
-randomize_url = pn.widgets.Button(name="Randomize URL", align="end")
+class AsyncComponent(pn.viewable.Viewer):
+    """A component that demonstrates how to run a Blocking Background task asynchronously
+    in Panel"""
 
-image_url = pn.widgets.TextInput(
-    name="Image URL to classify",
-    value=pn.bind(random_url, randomize_url),
-)
-class_names = pn.widgets.TextInput(
-    name="Comma separated class names",
-    placeholder="Enter possible class names, e.g. cat, dog",
-    value="cat, dog, parrot",
-)
+    select = param.Selector(objects=range(10))
+    slider = param.Number(2, bounds=(0, 10))
+    
+    run_blocking_task = param.Event(label="RUN")
+    result = param.Number(0)
+    view = param.Parameter()
 
-input_widgets = pn.Column(
-    "##### 😊 Click randomize or paste a URL to start classifying!",
-    pn.Row(image_url, randomize_url),
-    class_names,
-)
+    def __init__(self, **params):
+        super().__init__(**params)
 
-# add interactivity
-interactive_result = pn.panel(
-    pn.bind(process_inputs, image_url=image_url, class_names=class_names),
-    height=600,
-)
+        self._layout = pn.Column(
+            pn.pane.Markdown("## Blocking Task Running in Background"),
+            pn.Param(
+                self,
+                parameters=["run_blocking_task", "result"],
+                widgets={"result": {"disabled": True}, "run_blocking_task": {"button_type": "primary"}},
+                show_name=False,
+            ),
+            progress,
+            pn.pane.Markdown("## Other, Non-Blocked Tasks"),
+            pn.Param(
+                self,
+                parameters=["select", "slider"],
+                widgets={"text": {"disabled": True}},
+                show_name=False,
+            ),
+            self.text
+        )
 
-# add footer
-footer_row = pn.Row(pn.Spacer(), align="center")
-for icon, url in ICON_URLS.items():
-    href_button = pn.widgets.Button(icon=icon, width=35, height=35)
-    href_button.js_on_click(code=f"window.open('{url}')")
-    footer_row.append(href_button)
-footer_row.append(pn.Spacer())
+    def __panel__(self):
+        return self._layout
 
-# create dashboard
-main = pn.WidgetBox(
-    input_widgets,
-    interactive_result,
-    footer_row,
-)
+    @param.depends("slider", "select")
+    def text(self):
+        if self.select:
+            select = self.select
+        else:
+            select = 0
+        return f"{select} + {self.slider} = {select + self.slider}"
 
-title = "Panel Demo - Image Classification"
-pn.template.BootstrapTemplate(
-    title=title,
-    main=main,
-    main_max_width="min(50%, 698px)",
-    header_background="#F08080",
-).servable(title=title)
+    @pn.depends("run_blocking_task", watch=True)
+    async def _run_blocking_tasks(self, num_tasks=10):
+        """Runs background tasks num_tasks times"""
+        num_tasks = 20
+        progress.num_tasks = num_tasks
+        for _ in range(num_tasks):
+            future = executor.submit(self._run_blocking_task)
+            result = await wrap_future(future)
+            self._update(result)
+
+    @progress.increment()
+    def _update(self, number):
+        self.result += number
+
+    @staticmethod
+    def _run_blocking_task():
+        time.sleep(np.random.randint(1, 2))
+        return 5
+
+if __name__.startswith("bokeh"):
+    pn.extension(template="fast")
+    pn.pane.Markdown(__doc__).servable()
+    AsyncComponent().servable()  # pylint: disable=no-value-for-parameter
