@@ -130,5 +130,5 @@ if pn.state.served:
     
     component = AsyncComponent()
     pn.template.FastListTemplate(
-        site="Awesome Panel", title="Async Tasks", main=[component], main_layout=None, main_max_width="400px"
+        site="Awesome Panel", site_url="https://awesome-panel.org", title="Async Tasks", main=[component], main_layout=None, main_max_width="400px"
     ).servable()
