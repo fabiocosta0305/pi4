@@ -1,6 +1,6 @@
 ---
-title: Async Tasks
-emoji: ⚙️
+title: Build Dashboard
+emoji: 📈
 colorFrom: gray
 colorTo: green
 sdk: docker
