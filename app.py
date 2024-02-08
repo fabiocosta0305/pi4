@@ -1,9 +1,8 @@
 import panel as pn
 import pandas as pd
-import altair as alt
 import hvplot.pandas
 
-pn.extension("tabulator", "vega")
+pn.extension("tabulator")
 
 ACCENT="teal"
 
