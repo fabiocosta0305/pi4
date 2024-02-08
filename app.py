@@ -1,134 +1,109 @@
-import time
-from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
-
-import numpy as np
 import panel as pn
-import param
-from asyncio import wrap_future
+import pandas as pd
+import altair as alt
+import hvplot.pandas
 
-class ProgressExtMod(pn.viewable.Viewer):
-    """A custom component for easy progress reporting"""
+pn.extension("tabulator", "vega")
 
-    completed = param.Integer(default=0)
-    bar_color = param.String(default="info")
-    num_tasks = param.Integer(default=100, bounds=(1, None))
+ACCENT="teal"
 
-    # @param.depends('completed', 'num_tasks')
-    @property
-    def value(self) -> int:
-        """Returns the progress value
+styles = {
+    "box-shadow": "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px",
+    "border-radius": "4px",
+    "padding": "10px",
+}
 
-        Returns:
-            int: The progress value
-        """
-        return int(100 * (self.completed / self.num_tasks))
+image = pn.pane.JPG("https://assets.holoviz.org/panel/tutorials/wind_turbines_sunset.png")
 
-    def reset(self):
-        """Resets the value and message"""
-        # Please note the order matters as the Widgets updates two times. One for each change
-        self.completed = 0
+# Extract Data
 
-    def __panel__(self):
-        return self.view
+@pn.cache()  # only download data once
+def get_data():
+    return pd.read_csv("https://assets.holoviz.org/panel/tutorials/turbines.csv.gz")
 
-    @param.depends("completed", "bar_color")
-    def view(self):
-        """View the widget
-        Returns:
-            pn.viewable.Viewable: Add this to your app to see the progress reported
-        """
-        if self.value:
-            return pn.widgets.Progress(
-                active=True, value=self.value, align="center", sizing_mode="stretch_width"
-            )
-        return None
+# Transform Data
 
-    @contextmanager
-    def increment(self):
-        """Increments the value
-        
-        Can be used as context manager or decorator
-        
-        Yields:
-            None: Nothing is yielded
-        """
-        self.completed += 1
-        yield
-        if self.completed == self.num_tasks:
-            self.reset()
+source_data = get_data()
+min_year = int(source_data["p_year"].min())
+max_year = int(source_data["p_year"].max())
+top_manufacturers = (
+    source_data.groupby("t_manu").p_cap.sum().sort_values().iloc[-10:].index.to_list()
+)
 
-executor = ThreadPoolExecutor(max_workers=2)  # pylint: disable=consider-using-with
-progress = ProgressExtMod()
+def filter_data(t_manu, year):
+    data = source_data[(source_data.t_manu == t_manu) & (source_data.p_year <= year)]
+    return data
 
+# Filters
 
-class AsyncComponent(pn.viewable.Viewer):
-    """A component that demonstrates how to run a Blocking Background task asynchronously
-    in Panel"""
+t_manu = pn.widgets.Select(
+    name="Manufacturer",
+    value="Vestas",
+    options=sorted(top_manufacturers),
+    description="The name of the manufacturer",
+)
+p_year = pn.widgets.IntSlider(name="Year", value=max_year, start=min_year, end=max_year)
 
-    select = param.Selector(objects=range(10))
-    slider = param.Number(2, bounds=(0, 10))
-    
-    run_blocking_task = param.Event(label="RUN")
-    result = param.Number(0)
-    view = param.Parameter()
+# Transform Data 2
 
-    def __init__(self, **params):
-        super().__init__(**params)
+df = pn.rx(filter_data)(t_manu=t_manu, year=p_year)
+count = df.rx.len()
+total_capacity = df.t_cap.sum()
+avg_capacity = df.t_cap.mean()
+avg_rotor_diameter = df.t_rd.mean()
 
-        self._layout = pn.Column(
-            pn.pane.Markdown("## Blocking Task Running in Background"),
-            pn.Param(
-                self,
-                parameters=["run_blocking_task", "result"],
-                widgets={"result": {"disabled": True}, "run_blocking_task": {"button_type": "primary"}},
-                show_name=False,
-            ),
-            progress,
-            pn.pane.Markdown("## Other, Non-Blocked Tasks"),
-            pn.Param(
-                self,
-                parameters=["select", "slider"],
-                widgets={"text": {"disabled": True}},
-                show_name=False,
-            ),
-            self.text
-        )
+# Plot Data
 
-    def __panel__(self):
-        return self._layout
+fig = (
+    df[["p_year", "t_cap"]].groupby("p_year").sum() / 10**6
+).hvplot.bar(
+    title="Capacity Change",
+    rot=90,
+    ylabel="Capacity (MW)",
+    xlabel="Year",
+    xlim=(min_year, max_year),
+    color=ACCENT, 
+)
 
-    @param.depends("slider", "select")
-    def text(self):
-        if self.select:
-            select = self.select
-        else:
-            select = 0
-        return f"{select} + {self.slider} = {select + self.slider}"
+# Display Data
 
-    @pn.depends("run_blocking_task", watch=True)
-    async def _run_blocking_tasks(self, num_tasks=10):
-        """Runs background tasks num_tasks times"""
-        num_tasks = 20
-        progress.num_tasks = num_tasks
-        for _ in range(num_tasks):
-            future = executor.submit(self._run_blocking_task)
-            result = await wrap_future(future)
-            self._update(result)
+indicators = pn.FlexBox(
+    pn.indicators.Number(
+        value=count, name="Count", format="{value:,.0f}", styles=styles
+    ),
+    pn.indicators.Number(
+        value=total_capacity / 1e6,
+        name="Total Capacity (TW)",
+        format="{value:,.1f}",
+        styles=styles,
+    ),
+    pn.indicators.Number(
+        value=avg_capacity/1e3,
+        name="Avg. Capacity (MW)",
+        format="{value:,.1f}",
+        styles=styles,
+    ),
+    pn.indicators.Number(
+        value=avg_rotor_diameter,
+        name="Avg. Rotor Diameter (m)",
+        format="{value:,.1f}",
+        styles=styles,
+    ),
+)
 
-    @progress.increment()
-    def _update(self, number):
-        self.result += number
+plot = pn.pane.HoloViews(fig, sizing_mode="stretch_both", name="Plot")
+table = pn.widgets.Tabulator(df, sizing_mode="stretch_both", name="Table")
 
-    @staticmethod
-    def _run_blocking_task():
-        time.sleep(np.random.randint(1, 2))
-        return 5
+# Layout Data
 
-if pn.state.served:
-    pn.extension()
-    
-    component = AsyncComponent()
-    pn.template.FastListTemplate(
-        site="Awesome Panel", site_url="https://awesome-panel.org", title="Async Tasks", main=[component], main_layout=None, main_max_width="400px"
-    ).servable()
+tabs = pn.Tabs(
+    plot, table, styles=styles, sizing_mode="stretch_width", height=500, margin=10
+)
+
+pn.template.FastListTemplate(
+    title="Wind Turbine Dashboard",
+    sidebar=[image, t_manu, p_year],
+    main=[pn.Column(indicators, tabs, sizing_mode="stretch_both")],
+    main_layout=None,
+    accent=ACCENT,
+).servable()
