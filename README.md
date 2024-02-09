@@ -8,4 +8,4 @@ pinned: false
 license: mit
 ---
 
-For info check out [awesome-panel.org](https://awesome-panel.org).
+For info check out [Panel](https://panel.holoviz.org).
