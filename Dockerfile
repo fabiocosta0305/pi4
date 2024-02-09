@@ -12,5 +12,3 @@ CMD ["panel", "serve", "/code/app.py", "--address", "0.0.0.0", "--port", "7860",
 
 RUN mkdir /.cache
 RUN chmod 777 /.cache
-RUN mkdir .chroma
-RUN chmod 777 .chroma
