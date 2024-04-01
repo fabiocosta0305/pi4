@@ -58,7 +58,7 @@ fig = (
 ).hvplot.bar(
     title="Capacity Change",
     rot=90,
-    ylabel="Capacity (MW)",
+    ylabel="Capacity (GW)",
     xlabel="Year",
     xlim=(min_year, max_year),
     color=ACCENT, 
