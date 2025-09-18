@@ -23,12 +23,15 @@ def cria_dados():
                 'CRAS PARQUE',
                 'CRAS SAO JOAO',
                 'CRAS VILA',
-                'CRAS ZAIRA',]
+                'CRAS ZAIRA',
+                'CRAS GERAL',]
     # Janeiro até Dezembro (colunas 39 a 50)
     meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
              "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
     col_inicio = 39  # coluna Janeiro
     col_fim = 50     # coluna Dezembro
+
+    # print(lista_cras)
     
     dados_pessoas=pd.DataFrame()
 
@@ -36,7 +39,10 @@ def cria_dados():
         # print(cras)
         # Pegar as três linhas da seção 1.1 (Total, Individual, Coletivo)
         df_raw=pd.read_excel(arquivo,sheet_name=cras,header=None)
-        dados = df_raw.iloc[12:15, col_inicio:col_fim+1]
+        if (cras=='CRAS GERAL'):
+            dados = df_raw.iloc[13:16, col_inicio:col_fim+1]
+        else:
+            dados = df_raw.iloc[12:15, col_inicio:col_fim+1]
         # Zerar os NaN
         # dados.fillna(value=0,inplace=True) 
         dados.columns = meses
@@ -51,7 +57,10 @@ def cria_dados():
     
     for cras in lista_cras:
         df_raw=pd.read_excel(arquivo,sheet_name=cras,header=None)
-        dados = df_raw.iloc[16:21, col_inicio:col_fim+1]
+        if (cras=='CRAS GERAL'):
+            dados = df_raw.iloc[17:22, col_inicio:col_fim+1]
+        else:
+            dados = df_raw.iloc[16:21, col_inicio:col_fim+1]
     
         # Definir os índices corretamente
         dados.index = ["08h as 09h59", "10h00 as 11h59", "12h00 as 12h59","13h00 as 14h59","15h00 as 17h00"]
@@ -77,7 +86,10 @@ def cria_dados():
 
     for cras in lista_cras:
         df_raw=pd.read_excel(arquivo,sheet_name=cras,header=None)
-        procedencia = df_raw.iloc[22:43, col_inicio:col_fim+1]
+        if (cras=='CRAS GERAL'):
+            procedencia = df_raw.iloc[23:44, col_inicio:col_fim+1]
+        else:
+            procedencia = df_raw.iloc[22:43, col_inicio:col_fim+1]
         # procedencia.index = tipos_procedencia[:len(procedencia)]
         # dados = df_raw.iloc[16:21, col_inicio:col_fim+1]
 
@@ -99,8 +111,12 @@ def cria_dados():
 
     for cras in lista_cras:
         df_raw=pd.read_excel(arquivo,sheet_name=cras,header=None)
-        nomes_demandas = df_raw.iloc[45:76, 0].tolist()
-        demandas = df_raw.iloc[44:74, col_inicio:col_fim+1]
+        if (cras=='CRAS GERAL'):
+            nomes_demandas = df_raw.iloc[46:77, 0].tolist()
+            demandas = df_raw.iloc[45:76, col_inicio:col_fim+1]
+        else:
+            nomes_demandas = df_raw.iloc[45:76, 0].tolist()
+            demandas = df_raw.iloc[44:74, col_inicio:col_fim+1]
         demandas.columns = meses
         demandas['demandas']=nomes_demandas[:len(demandas)]
         demandas['Unidade'] = cras
@@ -119,7 +135,10 @@ def cria_dados():
     for cras in lista_cras:
         df_raw=pd.read_excel(arquivo,sheet_name=cras,header=None)
         # Pegar as três linhas da seção
-        tipo_atendimentos = df_raw.iloc[80:83, col_inicio:col_fim+1]
+        if (cras=='CRAS GERAL'):
+            tipo_atendimentos = df_raw.iloc[80:83, col_inicio:col_fim+1]
+        else:
+            tipo_atendimentos = df_raw.iloc[80:83, col_inicio:col_fim+1]
 
         # Pegar os nomes das demandas na coluna A (coluna 0)
         lista_tipo_atendimentos = df_raw.iloc[80:83, 0].tolist()
@@ -135,7 +154,10 @@ def cria_dados():
     dados_nacionalidade=pd.DataFrame()
     for cras in lista_cras:
         df_raw=pd.read_excel(arquivo,sheet_name=cras,header=None)
-        nacionalidade = df_raw.iloc[84:91, col_inicio:col_fim+1]
+        if (cras=='CRAS GERAL'):
+            nacionalidade = df_raw.iloc[85:92, col_inicio:col_fim+1]
+        else:
+            nacionalidade = df_raw.iloc[84:91, col_inicio:col_fim+1]
         
         # Pegar os nomes das demandas na coluna A (coluna 0)
         lista_nacionalidade = df_raw.iloc[84:91, 0].tolist()
