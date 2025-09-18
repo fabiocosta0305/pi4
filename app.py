@@ -1,6 +1,7 @@
-import panel as pn
-import pandas as pd
+import panel as pn      # Biblioteca Panel de Dashboard
+import pandas as pd     
 import hvplot.pandas
+import dados            # para a fonte de dados
 
 pn.extension("tabulator")
 
@@ -18,91 +19,75 @@ image = pn.pane.JPG("https://assets.holoviz.org/panel/tutorials/wind_turbines_su
 
 @pn.cache()  # only download data once
 def get_data():
-    return pd.read_csv("https://assets.holoviz.org/panel/tutorials/turbines.csv.gz")
+    return dados.cria_dados()
 
 # Transform Data
 
 source_data = get_data()
-min_year = int(source_data["p_year"].min())
-max_year = int(source_data["p_year"].max())
-top_manufacturers = (
-    source_data.groupby("t_manu").p_cap.sum().sort_values().iloc[-10:].index.to_list()
+# min_year = int(source_data["p_year"].min())
+# max_year = int(source_data["p_year"].max())
+
+@pn.cache()
+def info_cras(dados,cras):
+    # print(dados)
+    # print(cras)e
+    dados_pessoas=dados['pessoas']
+    dados_plotar=dados_pessoas[dados_pessoas['Unidade']==cras]
+    # tipos=pd.concat([pd.Series('Mês'),dados_plotar['Tipo']])
+    # tipos.insert(loc=0,column='Tipo', value='Mês')
+    # print(tipos)
+    tipos=dados_plotar['Tipo']
+    dados_plotar.index=dados_plotar['Tipo']
+    dados_plotar=dados_plotar.loc[:,'Janeiro':'Dezembro']
+    # print(dados_plotar)
+    return dados_plotar   
+
+def graph_cras(dados,cras):
+    dados_plotar=info_cras(dados,cras)
+    dados_plotarT = dados_plotar.T.reset_index().rename(columns={"index": "Mês"})
+    # dados_plotar.index=dados_plotar['index']
+    # dados_plotar=dados_plotar.loc[:,'Total':'Coletivo']
+    dados_plotar.rename(columns={'index':'Mês'}, inplace=True)
+    # print(dados_plotarT)
+    table = pn.pane.DataFrame(dados_plotar, 
+                                 name=f"# {cras}",
+                                 sizing_mode='stretch_both',
+                                 index=False,
+                                 height=200)
+    # Cria gráfico de barras
+    bar_plot = dados_plotarT.hvplot.bar(
+        x="Mês", 
+        y=dados_plotar.index,   # usa as métricas como séries
+        stacked=False,
+        rot=45,
+        title=f"# {cras}",
+        shared_axes=False,
+        sizing_mode='stretch_both',
+        legend='top',              # garante exibição
+        #legend_position='top_right' # posição da legenda
+    )
+    return pn.Column(
+        f"# Número de Pessoas Atendidas - {cras}",
+        bar_plot,
+        table,
+    )
+    
+drop_cras = pn.widgets.Select(
+    name="CRAS",
+    options=sorted(source_data['lista_cras']),
+    value=sorted(source_data['lista_cras'])[0],
+    description="Lista Completa dos CRAS disponíveis",
 )
 
-def filter_data(t_manu, year):
-    data = source_data[(source_data.t_manu == t_manu) & (source_data.p_year <= year)]
-    return data
+dados_cras=pn.bind(info_cras, dados=source_data, cras=drop_cras)
+graph=pn.bind(graph_cras, dados=source_data, cras=drop_cras)
 
-# Filters
-
-t_manu = pn.widgets.Select(
-    name="Manufacturer",
-    value="Vestas",
-    options=sorted(top_manufacturers),
-    description="The name of the manufacturer",
-)
-p_year = pn.widgets.IntSlider(name="Year", value=max_year, start=min_year, end=max_year)
-
-# Transform Data 2
-
-df = pn.rx(filter_data)(t_manu=t_manu, year=p_year)
-count = df.rx.len()
-total_capacity = df.t_cap.sum()
-avg_capacity = df.t_cap.mean()
-avg_rotor_diameter = df.t_rd.mean()
-
-# Plot Data
-
-fig = (
-    df[["p_year", "t_cap"]].groupby("p_year").sum() / 10**6
-).hvplot.bar(
-    title="Capacity Change",
-    rot=90,
-    ylabel="Capacity (GW)",
-    xlabel="Year",
-    xlim=(min_year, max_year),
-    color=ACCENT, 
-)
-
-# Display Data
-
-indicators = pn.FlexBox(
-    pn.indicators.Number(
-        value=count, name="Count", format="{value:,.0f}", styles=styles
-    ),
-    pn.indicators.Number(
-        value=total_capacity / 1e6,
-        name="Total Capacity (GW)",
-        format="{value:,.1f}",
-        styles=styles,
-    ),
-    pn.indicators.Number(
-        value=avg_capacity/1e3,
-        name="Avg. Capacity (MW)",
-        format="{value:,.1f}",
-        styles=styles,
-    ),
-    pn.indicators.Number(
-        value=avg_rotor_diameter,
-        name="Avg. Rotor Diameter (m)",
-        format="{value:,.1f}",
-        styles=styles,
-    ),
-)
-
-plot = pn.pane.HoloViews(fig, sizing_mode="stretch_both", name="Plot")
-table = pn.widgets.Tabulator(df, sizing_mode="stretch_both", name="Table")
-
-# Layout Data
-
-tabs = pn.Tabs(
-    plot, table, styles=styles, sizing_mode="stretch_width", height=500, margin=10
-)
+# texto_cras=pn.bind(value,cras=drop_cras)
 
 pn.template.FastListTemplate(
-    title="Wind Turbine Dashboard",
-    sidebar=[image, t_manu, p_year],
-    main=[pn.Column(indicators, tabs, sizing_mode="stretch_both")],
+    title="Informações CRAS Mauá",
+    sidebar=[drop_cras],
+    main=[graph],
     main_layout=None,
     accent=ACCENT,
 ).servable()

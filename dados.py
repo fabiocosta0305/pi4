@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def cria_dados():
-    pd.set_option('future.no_silent_downcasting', True)
+    # pd.set_option('future.no_silent_downcasting', True)
     
     arquivo = "CONSOLIDADO 2024 JAN-DEZ.xlsx"
     # df_raw = pd.read_excel(arquivo, header=None)
@@ -151,5 +151,6 @@ def cria_dados():
                   'procedencias': dados_procedencias,
                   'demandas': dados_demandas,
                   'atendimentos': dados_tipo_atendimentos,
-                  'nacionalidade': dados_nacionalidade}
+                  'nacionalidade': dados_nacionalidade,
+                  'lista_cras': lista_cras}
     return dados_totais
