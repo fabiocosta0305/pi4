@@ -4,6 +4,7 @@ import hvplot.pandas
 import dados            # para a fonte de dados
 import atendimentos
 import horario
+import procedencias
 
 pn.extension("tabulator")
 
@@ -40,12 +41,20 @@ drop_cras = pn.widgets.Select(
 # dados_cras=pn.bind(atendimentos.info_cras, dados=source_data, cras=drop_cras)
 graph_pessoas=pn.bind(atendimentos.graph_cras, dados=source_data, cras=drop_cras)
 
-# horarios_cras=pn.bind(horario.graph_cras, dados=source_data, cras=drop_cras)
+# horarios_cras=pn.bind(horario.info_cras, dados=source_data, cras=drop_cras)
 graph_horarios=pn.bind(horario.graph_cras, dados=source_data, cras=drop_cras)
+
+procedencias_cras=pn.bind(procedencias.df_cras, dados=source_data, cras=drop_cras)
+top_procedencias=pn.bind(procedencias.graph_cras, dados=source_data, cras=drop_cras)
+
+# graph_horarios=pn.bind(procedencias.horario.graph_cras, dados=source_data, cras=drop_cras)
 
 tabs=pn.Tabs(
                 ("Pessoas Atendidas",graph_pessoas),
                 ("Horário de Atendimento",graph_horarios),
+                ("Procedências",pn.Column(
+                        top_procedencias,
+                        procedencias_cras)),
             )
 
 # texto_cras=pn.bind(value,cras=drop_cras)

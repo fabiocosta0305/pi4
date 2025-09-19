@@ -97,8 +97,10 @@ def cria_dados():
         procedencia.columns = meses
         procedencia['procedencia']=tipos_procedencia[:len(procedencia)]
         procedencia['Unidade'] = cras
+        procedencia.index=tipos_procedencia[:len(procedencia)]
+        procedencia.index.names=['Procedência']
         dados_procedencias=pd.concat([dados_procedencias,procedencia])
-        # print(procedencia)
+        print(procedencia)
     dados_procedencias.fillna(value=0,inplace=True) # Ajustando valores vazios
     # dados_procedencias
 
