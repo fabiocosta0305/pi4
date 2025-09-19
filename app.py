@@ -39,7 +39,11 @@ drop_cras = pn.widgets.Select(
 dados_cras=pn.bind(atendimentos.info_cras, dados=source_data, cras=drop_cras)
 graph=pn.bind(atendimentos.graph_cras, dados=source_data, cras=drop_cras)
 
-tabs=pn.Tabs(("Pessoas Atendidas",graph))
+
+
+tabs=pn.Tabs(
+                ("Pessoas Atendidas",graph),
+            )
 
 # texto_cras=pn.bind(value,cras=drop_cras)
 

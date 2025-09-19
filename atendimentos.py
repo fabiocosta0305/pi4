@@ -27,10 +27,10 @@ def graph_cras(dados,cras):
     dados_plotar.rename(columns={'index':'Mês'}, inplace=True)
     # print(dados_plotarT)
     table = pn.pane.DataFrame(dados_plotar, 
-                                 name=f"# {cras}",
-                                 sizing_mode='stretch_both',
-                                 index=False,
-                                 height=200)
+                              name=f"# {cras}",
+                              sizing_mode='stretch_both',
+                              index=False,
+                             )
     # Cria gráfico de barras
     bar_plot = dados_plotarT.hvplot.bar(
         x="Mês", 
@@ -40,11 +40,12 @@ def graph_cras(dados,cras):
         title=f"# {cras}",
         shared_axes=False,
         sizing_mode='stretch_both',
-        legend='top',              # garante exibição
+        legend='right',              # garante exibição
         #legend_position='top_right' # posição da legenda
     )
     return pn.Column(
         f"# Número de Pessoas Atendidas - {cras}",
         bar_plot,
         table,
+        sizing_mode='stretch_both',
     )
