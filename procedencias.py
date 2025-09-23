@@ -3,12 +3,12 @@ import pandas as pd
 import hvplot.pandas
 import matplotlib.pyplot as plt
 
-# Específico para produzir o gráfico de pizza
-from math import pi
+# # Específico para produzir o gráfico de pizza
+# from math import pi
 
-from bokeh.palettes import Category20c, Category20
-from bokeh.plotting import figure
-from bokeh.transform import cumsum
+# from bokeh.palettes import Category20c, Category20
+# from bokeh.plotting import figure
+# from bokeh.transform import cumsum
 
 @pn.cache()
 def info_cras(dados,cras):

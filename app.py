@@ -13,7 +13,7 @@ import demandas
 
 
 pn.extension("tabulator")
-pn.extension('ipywidgets')
+# pn.extension('ipywidgets')
 
 ACCENT="teal"
 

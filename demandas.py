@@ -97,7 +97,7 @@ def graph_cras(dados,cras):
         bar_plot,
         table,)
     return pn.Column(
-        f"# Demandas mais Solicitadas - {cras}",
+        f"#  - {cras}",
         exibe_dados, 
         sizing_mode='stretch_both',
     )
