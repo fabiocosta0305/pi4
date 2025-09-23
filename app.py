@@ -66,13 +66,13 @@ top_tipos=pn.bind(tipo.graph_cras, dados=source_data, cras=drop_cras)
 tabs=pn.Tabs(
                 ("Pessoas Atendidas",graph_pessoas),
                 ("Horário de Atendimento",graph_horarios),
-                ("Procedências",pn.Column(
+                ("Origem de Atendimento",pn.Column(
                         top_procedencias,
                         procedencias_cras)),
                 ("Demandas",pn.Column(
                         top_demandas,
                         demandas_cras)),
-                ("Tipos",pn.Column(
+                ("Tipo de Atendimentos",pn.Column(
                         top_tipos)),
             )
 

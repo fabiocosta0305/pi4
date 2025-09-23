@@ -73,7 +73,6 @@ def graph_cras(dados,cras):
         x="Procedência", 
         stacked=False,
         rot=45,
-        title=f"# {cras}",
         shared_axes=False,
         sizing_mode='stretch_both',
         legend='right',              # garante exibição
@@ -97,7 +96,7 @@ def graph_cras(dados,cras):
         bar_plot,
         table,)
     return pn.Column(
-        f"# Número de Pessoas Atendidas - {cras}",
+        f"# Origem dos Atendimentos - {cras}",
         exibe_dados, 
         sizing_mode='stretch_both',
     )

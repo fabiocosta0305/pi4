@@ -101,7 +101,7 @@ def graph_cras(dados,cras):
         bar_plot,
         table,)
     return pn.Column(
-        f"# Número de Pessoas Atendidas - {cras}",
+        f"# Tipo de Atendimentos - {cras}",
         exibe_dados, 
         sizing_mode='stretch_both',
     )
