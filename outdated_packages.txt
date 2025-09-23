@@ -1,0 +1,11 @@
+anyio==4.10.0
+debugpy==1.8.16
+ipython==8.12.3
+lark==1.2.2
+pip==22.0.2
+prometheus_client==0.22.1
+psutil==7.0.0
+pyparsing==3.2.4
+setuptools==59.6.0
+wcwidth==0.2.13
+yarg==0.1.9

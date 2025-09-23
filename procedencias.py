@@ -1,7 +1,14 @@
 import panel as pn      # Biblioteca Panel de Dashboard
 import pandas as pd     
 import hvplot.pandas
-#import dados            # para a fonte de dados
+import matplotlib.pyplot as plt
+
+# Específico para produzir o gráfico de pizza
+from math import pi
+
+from bokeh.palettes import Category20c, Category20
+from bokeh.plotting import figure
+from bokeh.transform import cumsum
 
 @pn.cache()
 def info_cras(dados,cras):
@@ -41,7 +48,7 @@ def df_cras(dados,cras):
 def top10(dados):
     totais = dados.sum(axis=1)
     top_procedencia = totais.sort_values(ascending=False).head(5)
-    print(top_procedencia)
+    # print(top_procedencia)
     return top_procedencia
 
 # @pn.cache()
@@ -72,6 +79,20 @@ def graph_cras(dados,cras):
         legend='right',              # garante exibição
         #legend_position='top_right' # posição da legenda
     )
+
+    # Gráfico de Pizza
+    # plt.figure(figsize=(12,6))
+    # fig,ax = plt.subplots()
+    # plt.title(f"Principais procedências dos Usuários - {cras} 2024", fontsize=14, fontweight='bold')
+    # labels=dados_plotar.reset_index()
+    # dados=dados_plotar
+    # # print(dados)
+    # wedges, text = ax.pie(dados)
+    # ax.legend(wedges,dados_plotar.index,
+    #           title="Procedência",
+    #           loc='center left',
+    #           bbox_to_anchor=(1, 0, 0.5, 1))
+    # # plt.show()
     exibe_dados=pn.Row(
         bar_plot,
         table,)

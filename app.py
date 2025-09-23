@@ -1,12 +1,19 @@
 import panel as pn      # Biblioteca Panel de Dashboard
 import pandas as pd     
 import hvplot.pandas
+from matplotlib.figure import Figure
+from matplotlib import cm
+import matplotlib.pyplot as plt
+
 import dados            # para a fonte de dados
 import atendimentos
 import horario
 import procedencias
+import demandas
+
 
 pn.extension("tabulator")
+pn.extension('ipywidgets')
 
 ACCENT="teal"
 
@@ -47,6 +54,9 @@ graph_horarios=pn.bind(horario.graph_cras, dados=source_data, cras=drop_cras)
 procedencias_cras=pn.bind(procedencias.df_cras, dados=source_data, cras=drop_cras)
 top_procedencias=pn.bind(procedencias.graph_cras, dados=source_data, cras=drop_cras)
 
+demandas_cras=pn.bind(demandas.df_cras, dados=source_data, cras=drop_cras)
+top_demandas=pn.bind(demandas.graph_cras, dados=source_data, cras=drop_cras)
+
 # graph_horarios=pn.bind(procedencias.horario.graph_cras, dados=source_data, cras=drop_cras)
 
 tabs=pn.Tabs(
@@ -55,6 +65,9 @@ tabs=pn.Tabs(
                 ("Procedências",pn.Column(
                         top_procedencias,
                         procedencias_cras)),
+                ("Demandas",pn.Column(
+                        top_demandas,
+                        demandas_cras)),
             )
 
 # texto_cras=pn.bind(value,cras=drop_cras)
