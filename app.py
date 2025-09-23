@@ -10,10 +10,11 @@ import atendimentos
 import horario
 import procedencias
 import demandas
+import tipo
 
 
 pn.extension("tabulator")
-# pn.extension('ipywidgets')
+pn.extension('ipywidgets')
 
 ACCENT="teal"
 
@@ -57,6 +58,9 @@ top_procedencias=pn.bind(procedencias.graph_cras, dados=source_data, cras=drop_c
 demandas_cras=pn.bind(demandas.df_cras, dados=source_data, cras=drop_cras)
 top_demandas=pn.bind(demandas.graph_cras, dados=source_data, cras=drop_cras)
 
+tipos_cras=pn.bind(tipo.df_cras, dados=source_data, cras=drop_cras)
+top_tipos=pn.bind(tipo.graph_cras, dados=source_data, cras=drop_cras)
+
 # graph_horarios=pn.bind(procedencias.horario.graph_cras, dados=source_data, cras=drop_cras)
 
 tabs=pn.Tabs(
@@ -68,6 +72,8 @@ tabs=pn.Tabs(
                 ("Demandas",pn.Column(
                         top_demandas,
                         demandas_cras)),
+                ("Tipos",pn.Column(
+                        top_tipos)),
             )
 
 # texto_cras=pn.bind(value,cras=drop_cras)
