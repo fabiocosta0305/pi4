@@ -36,7 +36,6 @@ bnnumerizer==0.0.2
 bnunicodenormalizer==0.1.6
 bokeh==3.8.0
 bottle==0.12.19
-Brlapi==0.8.3
 Brotli==1.0.9
 cachetools==5.3.2
 cassandra-driver==3.28.0
