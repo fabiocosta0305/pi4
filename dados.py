@@ -136,12 +136,14 @@ def cria_dados():
         df_raw=pd.read_excel(arquivo,sheet_name=cras,header=None)
         # Pegar as três linhas da seção
         if (cras=='CRAS GERAL'):
-            tipo_atendimentos = df_raw.iloc[80:83, col_inicio:col_fim+1]
+            tipo_atendimentos = df_raw.iloc[81:84, col_inicio:col_fim+1]
+            lista_tipo_atendimentos = df_raw.iloc[81:84, 0].tolist()
+            print(tipo_atendimentos)
         else:
             tipo_atendimentos = df_raw.iloc[80:83, col_inicio:col_fim+1]
-
+            lista_tipo_atendimentos = df_raw.iloc[80:83, 0].tolist()
+        
         # Pegar os nomes das demandas na coluna A (coluna 0)
-        lista_tipo_atendimentos = df_raw.iloc[80:83, 0].tolist()
         tipo_atendimentos.columns=meses
         tipo_atendimentos['tipo_atendimentos']=lista_tipo_atendimentos[:len(tipo_atendimentos)]
         tipo_atendimentos['Unidade']=cras

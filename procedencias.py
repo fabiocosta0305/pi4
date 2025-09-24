@@ -54,7 +54,7 @@ def top10(dados):
 # @pn.cache()
 def graph_cras(dados,cras):
     dados_plotar=top10(info_cras(dados,cras))
-    print(dados_plotar)
+    # print(dados_plotar)
     dados_plotarT = dados_plotar.T.reset_index().rename(columns={"index": "Procedências"})
     # dados_plotar.index=dados_plotar['index']
     # dados_plotar=dados_plotar.loc[:,'Total':'Coletivo']

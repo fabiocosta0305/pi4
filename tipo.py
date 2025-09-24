@@ -2,6 +2,7 @@ import panel as pn      # Biblioteca Panel de Dashboard
 import pandas as pd     
 import hvplot.pandas
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 # # Específico para produzir o gráfico de pizza
 # from math import pi
@@ -52,6 +53,36 @@ def top10(dados):
     # print(top_procedencia)
     return top_procedencia
 
+def pizza_cras(dados,cras):
+    dados_plotar=top10(info_cras(dados,cras))
+    # print(dados_plotar)
+    tipo_atendimentos=dados_plotar.index
+    # print(tipo_atendimentos)
+    dados_plotar.index.names=['Tipo de Atendimento']
+    # dados_plotar.rename(columns={0:'Total'}, inplace=True)
+    dados_plotar.rename('Total',inplace=True)
+    # print(dados_plotar)
+    # print(dados_plotarT)
+
+    df_plotar=dados_plotar.reset_index()
+    # print(df_plotar)
+    
+    # print(dados_plotar)
+    fig = px.pie(
+        df_plotar,
+        title="Atendimentos por Tipo",
+        values='Total',
+        names='Tipo de Atendimento',
+        hole=0  # se quiser transformar em "donut", coloque algo como 0.4
+    )
+
+    graph=pn.pane.Plotly(fig, config={"responsive": True})
+
+    return pn.Row(
+        graph, 
+        sizing_mode='stretch_both',
+    )
+
 # @pn.cache()
 def graph_cras(dados,cras):
     dados_plotar=top10(info_cras(dados,cras))
@@ -60,11 +91,11 @@ def graph_cras(dados,cras):
     # dados_plotar.index=dados_plotar['index']
     # dados_plotar=dados_plotar.loc[:,'Total':'Coletivo']
     tipo_atendimentos=dados_plotar.index
-    print(tipo_atendimentos)
+    # print(tipo_atendimentos)
     dados_plotar.index.names=['Tipo de Atendimento']
     # dados_plotar.rename(columns={0:'Total'}, inplace=True)
     dados_plotar.rename('Total',inplace=True)
-    print(dados_plotar)
+    # print(dados_plotar)
     # print(dados_plotarT)
     table = pn.pane.DataFrame(dados_plotar, 
                               name=f"# {cras}",
@@ -97,11 +128,30 @@ def graph_cras(dados,cras):
     #           loc='center left',
     #           bbox_to_anchor=(1, 0, 0.5, 1))
     # # plt.show()
+
+    df_plotar=dados_plotar.reset_index()
+    # print(df_plotar)
+    
+    # print(dados_plotar)
+    fig = px.pie(
+        df_plotar,
+        title="Atendimentos por Tipo",
+        values='Total',
+        names='Tipo de Atendimento',
+        hole=0  # se quiser transformar em "donut", coloque algo como 0.4
+    )
+
+    fig.update_traces(textinfo="label+percent")  # destaca as fatias
+
+    graph=pn.pane.Plotly(fig, config={"responsive": True})
+
     exibe_dados=pn.Row(
         bar_plot,
         table,)
+    graph=pizza_cras(dados, cras)
     return pn.Column(
         f"# Tipo de Atendimentos - {cras}",
         exibe_dados, 
+        graph,
         sizing_mode='stretch_both',
     )

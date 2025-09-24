@@ -19,14 +19,14 @@ def info_cras(dados,cras):
     dados_plotar=dados_pessoas[dados_pessoas['Unidade']==cras]
     indice=dados_plotar['demandas']
     dados_plotar.index=indice[:len(dados_plotar)]
-    print(dados_plotar) 
+    # print(dados_plotar) 
     # tipos=pd.concat([pd.Series('Mês'),dados_plotar['Tipo']])
     # tipos.insert(loc=0,column='Tipo', value='Mês')
     # print(tipos)
     # tipos=dados_plotar['Tipo']
     # dados_plotar.index=dados_plotar['Tipo']
     dados_plotar=dados_plotar.loc[:,'Janeiro':'Dezembro']
-    print(dados_plotar)
+    # print(dados_plotar)
     return dados_plotar   
 
 def df_cras(dados,cras):
@@ -54,7 +54,7 @@ def top10(dados):
 # @pn.cache()
 def graph_cras(dados,cras):
     dados_plotar=top10(info_cras(dados,cras))
-    print(dados_plotar)
+    # print(dados_plotar)
     dados_plotarT = dados_plotar.T.reset_index().rename(columns={"index": "Demandas"})
     # dados_plotar.index=dados_plotar['index']
     # dados_plotar=dados_plotar.loc[:,'Total':'Coletivo']

@@ -15,6 +15,9 @@ import tipo
 
 pn.extension("tabulator")
 pn.extension('ipywidgets')
+pn.extension('plotly')
+
+pd.set_option('future.no_silent_downcasting', True)
 
 ACCENT="teal"
 
@@ -60,6 +63,7 @@ top_demandas=pn.bind(demandas.graph_cras, dados=source_data, cras=drop_cras)
 
 tipos_cras=pn.bind(tipo.df_cras, dados=source_data, cras=drop_cras)
 top_tipos=pn.bind(tipo.graph_cras, dados=source_data, cras=drop_cras)
+pizza_cras=pn.bind(tipo.pizza_cras, dados=source_data, cras=drop_cras)
 
 # graph_horarios=pn.bind(procedencias.horario.graph_cras, dados=source_data, cras=drop_cras)
 
