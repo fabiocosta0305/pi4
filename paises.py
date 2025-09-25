@@ -74,17 +74,24 @@ def graph_cras(dados,cras):
     )
 
     
-    fig=df_brasil.hvplot.bar(
-        y="Mês", 
-        stacked=False,
-        rot=45,
-        title=f"Atendimento Para Brasileiros",
-        shared_axes=False,
-        sizing_mode='stretch_both',
-        legend='right',              # garante exibição
-        #legend_position='top_right' # posição da legenda
-    )
+    # fig=df_brasil.hvplot.bar(
+    #     y="Mês", 
+    #     stacked=False,
+    #     rot=45,
+    #     title=f"Atendimento Para Brasileiros",
+    #     shared_axes=False,
+    #     sizing_mode='stretch_both',
+    #     legend='right',              # garante exibição
+    #     #legend_position='top_right' # posição da legenda
+    # )
 
+    fig = df_brasil.hvplot.bar(
+        y="Brasileiro",
+        title="Atendimentos por Mês",
+        xlabel="Mês",
+        ylabel="Quantidade",
+        rot=45   # gira os rótulos do eixo X para melhor visualização
+    )
     
     return pn.Row(
             fig,
