@@ -20,14 +20,13 @@ def info_cras(dados,cras):
 
 @pn.cache()
 def graph_cras(dados,cras):
-
     # pn.extension('plotly')  # ativa integração com Plotly
     # print(dados_plotar)
     dados_plotar=info_cras(dados,cras)
     dados_plotarT = dados_plotar.T.reset_index().rename(columns={"index": "Mês"})
     # dados_plotar.index=dados_plotar['index']
     # dados_plotar=dados_plotar.loc[:,'Total':'Coletivo']
-    print(dados_plotarT)
+    # print(dados_plotarT)
     table = pn.pane.DataFrame(dados_plotar, 
                               name=f"# {cras}",
                               sizing_mode='stretch_both',

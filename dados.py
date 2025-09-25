@@ -138,7 +138,7 @@ def cria_dados():
         if (cras=='CRAS GERAL'):
             tipo_atendimentos = df_raw.iloc[81:84, col_inicio:col_fim+1]
             lista_tipo_atendimentos = df_raw.iloc[81:84, 0].tolist()
-            print(tipo_atendimentos)
+            # print(tipo_atendimentos)
         else:
             tipo_atendimentos = df_raw.iloc[80:83, col_inicio:col_fim+1]
             lista_tipo_atendimentos = df_raw.iloc[80:83, 0].tolist()
@@ -158,11 +158,12 @@ def cria_dados():
         df_raw=pd.read_excel(arquivo,sheet_name=cras,header=None)
         if (cras=='CRAS GERAL'):
             nacionalidade = df_raw.iloc[85:92, col_inicio:col_fim+1]
+            lista_nacionalidade = df_raw.iloc[85:92, 0].tolist()
         else:
             nacionalidade = df_raw.iloc[84:91, col_inicio:col_fim+1]
+            lista_nacionalidade = df_raw.iloc[84:91, 0].tolist()
         
         # Pegar os nomes das demandas na coluna A (coluna 0)
-        lista_nacionalidade = df_raw.iloc[84:91, 0].tolist()
         nacionalidade.columns=meses
         nacionalidade['nacionalidade']=lista_nacionalidade[:len(nacionalidade)]
         nacionalidade['Unidade']=cras

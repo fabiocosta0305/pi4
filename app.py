@@ -1,47 +1,44 @@
-import panel as pn      # Biblioteca Panel de Dashboard
-import pandas as pd     
-import hvplot.pandas
-from matplotlib.figure import Figure
+# Importar bibliotecas
+import panel as pn                      # Biblioteca Panel de Dashboard
+import pandas as pd                     # Pandas
+import hvplot.pandas                    # Biblioteca do HVPlot para Pandas
+
+# Bibliotecas do MatPlotLib
+from matplotlib.figure import Figure    
 from matplotlib import cm
 import matplotlib.pyplot as plt
 
+# Widgets e dados
 import dados            # para a fonte de dados
-import atendimentos
-import horario
-import procedencias
-import demandas
-import tipo
+import atendimentos     # Atendimento por mês
+import horario          # Faixa de Horário
+import procedencias     # Procedências
+import demandas         # Demandas
+import tipo             # Tipo de Atendimento
+import paises           # Paises
 
-
+# Extensões a serem ativadas para os gráicos
 pn.extension("tabulator")
 pn.extension('ipywidgets')
 pn.extension('plotly')
 
+# Apenas necessário para que não seja gerado uma série de Warnings do Panels
 pd.set_option('future.no_silent_downcasting', True)
 
 ACCENT="teal"
 
-styles = {
-    "box-shadow": "rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px",
-    "border-radius": "4px",
-    "padding": "10px",
-}
-
-image = pn.pane.JPG("https://assets.holoviz.org/panel/tutorials/wind_turbines_sunset.png")
-
-# Extract Data
+# Obtem dados 
+#
+# @pn.cache() faz com que os dados sejam gerados apenas uma vez
 
 @pn.cache()  # only download data once
 def get_data():
     return dados.cria_dados()
 
-# Transform Data
-
 source_data = get_data()
-# min_year = int(source_data["p_year"].min())
-# max_year = int(source_data["p_year"].max())
 
-    
+
+# Widget de lista dos CRAS
 drop_cras = pn.widgets.Select(
     name="CRAS",
     options=sorted(source_data['lista_cras']),
@@ -49,10 +46,11 @@ drop_cras = pn.widgets.Select(
     description="Lista Completa dos CRAS disponíveis",
 )
 
-# dados_cras=pn.bind(atendimentos.info_cras, dados=source_data, cras=drop_cras)
+
+# Fazendo os binds necessário (de modo a gerar as interações)
+
 graph_pessoas=pn.bind(atendimentos.graph_cras, dados=source_data, cras=drop_cras)
 
-# horarios_cras=pn.bind(horario.info_cras, dados=source_data, cras=drop_cras)
 graph_horarios=pn.bind(horario.graph_cras, dados=source_data, cras=drop_cras)
 
 procedencias_cras=pn.bind(procedencias.df_cras, dados=source_data, cras=drop_cras)
@@ -61,11 +59,17 @@ top_procedencias=pn.bind(procedencias.graph_cras, dados=source_data, cras=drop_c
 demandas_cras=pn.bind(demandas.df_cras, dados=source_data, cras=drop_cras)
 top_demandas=pn.bind(demandas.graph_cras, dados=source_data, cras=drop_cras)
 
-tipos_cras=pn.bind(tipo.df_cras, dados=source_data, cras=drop_cras)
 top_tipos=pn.bind(tipo.graph_cras, dados=source_data, cras=drop_cras)
-pizza_cras=pn.bind(tipo.pizza_cras, dados=source_data, cras=drop_cras)
 
+# horarios_cras=pn.bind(horario.info_cras, dados=source_data, cras=drop_cras)
+# dados_cras=pn.bind(atendimentos.info_cras, dados=source_data, cras=drop_cras)
+#tipos_cras=pn.bind(tipo.df_cras, dados=source_data, cras=drop_cras)
+#pizza_cras=pn.bind(tipo.pizza_cras, dados=source_data, cras=drop_cras)
 # graph_horarios=pn.bind(procedencias.horario.graph_cras, dados=source_data, cras=drop_cras)
+paises_cras=pn.bind(paises.graph_cras, dados=source_data, cras=drop_cras)
+df_cras=pn.bind(paises.df_cras, dados=source_data, cras=drop_cras)
+
+#M Montando as Tabs Principais
 
 tabs=pn.Tabs(
                 ("Pessoas Atendidas",graph_pessoas),
@@ -78,9 +82,13 @@ tabs=pn.Tabs(
                         demandas_cras)),
                 ("Tipo de Atendimentos",pn.Column(
                         top_tipos)),
+                ("Países de Atendimentos",pn.Column(
+                        paises_cras,df_cras)),
             )
 
 # texto_cras=pn.bind(value,cras=drop_cras)
+
+# Publicação do Dashboard
 
 pn.template.FastListTemplate(
     title="Informações CRAS Mauá",
