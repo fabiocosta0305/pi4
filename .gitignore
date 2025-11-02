@@ -208,3 +208,5 @@ pip-selfcheck.json
 *.layout
 *~
 PI 4/*
+.jupyter*
+.~lock.*
