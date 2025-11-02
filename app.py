@@ -31,7 +31,7 @@ ACCENT="teal"
 #
 # @pn.cache() faz com que os dados sejam gerados apenas uma vez
 
-@pn.cache()  # only download data once
+#@pn.cache()  # only download data once
 def get_data():
     return dados.cria_dados()
 
