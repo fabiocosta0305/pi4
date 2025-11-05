@@ -123,11 +123,32 @@ def cria_dados():
         dados_nacionalidade=pd.concat([dados_nacionalidade,nacionalidade])
     dados_nacionalidade.fillna(value=0,inplace=True)
 
+    # -----------------------------------------
+    # Recepção por Idioma (Total) - Correção Final e Segura
+    # -----------------------------------------
+
+    # Selecionar os dados brutos do trecho correspondente
+    dados_recepcao_idioma = df_raw.iloc[93:98, col_inicio:col_fim+1].copy()
+
+    # Pegar os nomes dos idiomas (coluna A)
+    dados_recepcao_idioma.index = df_raw.iloc[93:98, 0].values
+
+    # Remover o idioma "Português" (não relevante para análise)
+    dados_recepcao_idioma = dados_recepcao_idioma.drop("Português", errors="ignore")
+
+    # Somar os valores de cada idioma (somando todas as colunas/mês)
+    dados_recepcao_idioma_total = pd.DataFrame({
+        "Idioma": dados_recepcao_idioma.index,
+        "Total": dados_recepcao_idioma.sum(axis=1).values
+    })
+
+
     dados_totais={'pessoas': dados_pessoas,
                   'horarios': dados_horario,
                   'procedencias': dados_procedencias,
                   'demandas': dados_demandas,
                   'atendimentos': dados_tipo_atendimentos,
                   'nacionalidade': dados_nacionalidade,
+                  'dados_recepcao_total':  dados_recepcao_idioma_total,
                   'lista_cras': lista_cras}
     return dados_totais

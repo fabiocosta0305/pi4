@@ -29,7 +29,7 @@ ACCENT="teal"
 
 # Obtem dados 
 #
-@pn.cache() faz com que os dados sejam gerados apenas uma vez
+@pn.cache() # faz com que os dados sejam gerados apenas uma vez
 def get_data():
     return dados.cria_dados()
 
