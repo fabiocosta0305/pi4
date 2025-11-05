@@ -4,35 +4,17 @@ import hvplot.pandas
 import matplotlib.pyplot as plt
 import plotly.express as px
 
-# # Específico para produzir o gráfico de pizza
-# from math import pi
-
-# from bokeh.palettes import Category20c, Category20
-# from bokeh.plotting import figure
-# from bokeh.transform import cumsum
 
 @pn.cache()
 def info_cras(dados,cras):
-    # print(dados)
-    # print(cras)e
-    # print("Aqui!")
     dados_pessoas=dados['atendimentos']
-    # print(dados_pessoas)
     dados_plotar=dados_pessoas[dados_pessoas['Unidade']==cras]
     indice=dados_plotar['tipo_atendimentos']
     dados_plotar.index=indice[:len(dados_plotar)]
-    # print(dados_plotar) 
-    # tipos=pd.concat([pd.Series('Mês'),dados_plotar['Tipo']])
-    # tipos.insert(loc=0,column='Tipo', value='Mês')
-    # print(tipos)
-    # tipos=dados_plotar['Tipo']
-    # dados_plotar.index=dados_plotar['Tipo']
     dados_plotar=dados_plotar.loc[:,'Janeiro':'Dezembro']
-    # print(dados_plotar)
     return dados_plotar   
 
 def df_cras(dados,cras):
-    # print("Aqui - df!")
     dados_plotar=info_cras(dados,cras)
     dados_plotar.index.names=['Procedência']
     table = pn.pane.DataFrame(dados_plotar, 
@@ -50,24 +32,15 @@ def df_cras(dados,cras):
 def top10(dados):
     totais = dados.sum(axis=1)
     top_procedencia = totais.sort_values(ascending=False).head(5)
-    # print(top_procedencia)
     return top_procedencia
 
 def pizza_cras(dados,cras):
     dados_plotar=top10(info_cras(dados,cras))
-    # print(dados_plotar)
     tipo_atendimentos=dados_plotar.index
-    # print(tipo_atendimentos)
     dados_plotar.index.names=['Tipo de Atendimento']
-    # dados_plotar.rename(columns={0:'Total'}, inplace=True)
     dados_plotar.rename('Total',inplace=True)
-    # print(dados_plotar)
-    # print(dados_plotarT)
 
     df_plotar=dados_plotar.reset_index()
-    # print(df_plotar)
-    
-    # print(dados_plotar)
     fig = px.pie(
         df_plotar,
         title="Atendimentos por Tipo",
@@ -83,20 +56,13 @@ def pizza_cras(dados,cras):
         sizing_mode='stretch_both',
     )
 
-# @pn.cache()
+@pn.cache()
 def graph_cras(dados,cras):
     dados_plotar=top10(info_cras(dados,cras))
-    # print(dados_plotar)
     dados_plotarT = dados_plotar.T.reset_index().rename(columns={"index": "Tipo de Atendimento"})
-    # dados_plotar.index=dados_plotar['index']
-    # dados_plotar=dados_plotar.loc[:,'Total':'Coletivo']
     tipo_atendimentos=dados_plotar.index
-    # print(tipo_atendimentos)
     dados_plotar.index.names=['Tipo de Atendimento']
-    # dados_plotar.rename(columns={0:'Total'}, inplace=True)
     dados_plotar.rename('Total',inplace=True)
-    # print(dados_plotar)
-    # print(dados_plotarT)
     table = pn.pane.DataFrame(dados_plotar, 
                               name=f"# {cras}",
                               sizing_mode='stretch_both',
@@ -112,27 +78,9 @@ def graph_cras(dados,cras):
         shared_axes=False,
         sizing_mode='stretch_both',
         legend='top',              # garante exibição
-        #legend_position='top_right' # posição da legenda
     )
 
-    # Gráfico de Pizza
-    # plt.figure(figsize=(12,6))
-    # fig,ax = plt.subplots()
-    # plt.title(f"Principais procedências dos Usuários - {cras} 2024", fontsize=14, fontweight='bold')
-    # labels=dados_plotar.reset_index()
-    # dados=dados_plotar
-    # # print(dados)
-    # wedges, text = ax.pie(dados)
-    # ax.legend(wedges,dados_plotar.index,
-    #           title="Procedência",
-    #           loc='center left',
-    #           bbox_to_anchor=(1, 0, 0.5, 1))
-    # # plt.show()
-
     df_plotar=dados_plotar.reset_index()
-    # print(df_plotar)
-    
-    # print(dados_plotar)
     fig = px.pie(
         df_plotar,
         title="Atendimentos por Tipo",

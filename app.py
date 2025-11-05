@@ -29,9 +29,7 @@ ACCENT="teal"
 
 # Obtem dados 
 #
-# @pn.cache() faz com que os dados sejam gerados apenas uma vez
-
-#@pn.cache()  # only download data once
+@pn.cache() faz com que os dados sejam gerados apenas uma vez
 def get_data():
     return dados.cria_dados()
 
@@ -61,11 +59,6 @@ top_demandas=pn.bind(demandas.graph_cras, dados=source_data, cras=drop_cras)
 
 top_tipos=pn.bind(tipo.graph_cras, dados=source_data, cras=drop_cras)
 
-# horarios_cras=pn.bind(horario.info_cras, dados=source_data, cras=drop_cras)
-# dados_cras=pn.bind(atendimentos.info_cras, dados=source_data, cras=drop_cras)
-#tipos_cras=pn.bind(tipo.df_cras, dados=source_data, cras=drop_cras)
-#pizza_cras=pn.bind(tipo.pizza_cras, dados=source_data, cras=drop_cras)
-# graph_horarios=pn.bind(procedencias.horario.graph_cras, dados=source_data, cras=drop_cras)
 paises_cras=pn.bind(paises.graph_cras, dados=source_data, cras=drop_cras)
 df_cras=pn.bind(paises.df_cras, dados=source_data, cras=drop_cras)
 
@@ -85,8 +78,6 @@ tabs=pn.Tabs(
                 ("Países de Atendimentos",pn.Column(
                         paises_cras,df_cras)),
             )
-
-# texto_cras=pn.bind(value,cras=drop_cras)
 
 # Publicação do Dashboard
 
